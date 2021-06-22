@@ -15,7 +15,6 @@ public class sobiad {
         TwitterFactory tf=new TwitterFactory(configurationBuider.build());
         twitter4j.Twitter twitter=tf.getInstance();
 
-// You can pull this in from user input, etc.
         String hashTagToSearchFor = "testme";
 
         List<Status> status=twitter.getHomeTimeline();
@@ -25,7 +24,6 @@ public class sobiad {
                 if (hashtag.equals(hashTagToSearchFor)) {
                     System.out.println(s.getUser().getName() + ": " + s.getText());
 
-                    // Assuming all hashtags are unique...
                     continue;
                 }
             }
