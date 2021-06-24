@@ -27,23 +27,27 @@ public class sobiad {
 */
         TwitterFactory tf=new TwitterFactory(configurationBuider.build());
         twitter4j.Twitter twitter=tf.getInstance();
-
+        int count=0;
         try {
-            Query query = new Query("yusuf");//bu kısıma aranacak kelimeyi giriyoruz
+            Query query = new Query("sobiad").since("2021-01-01");//bu kısıma aranacak kelimeyi giriyoruz
             QueryResult result;
             do {
                 result = twitter.search(query);
                 List<Status> tweets = result.getTweets();
                 for (Status tweet : tweets) {
-                    System.out.println("@" + tweet.getUser().getScreenName() + " - " + tweet.getText());
+                    System.out.println("@" + tweet.getUser().getScreenName() + " --- " + tweet.getText() + " --- " + tweet.getId());
+                    count++;
+
                 }
             } while ((query = result.nextQuery()) != null);
+            System.out.println("Çekilen tweet sayısı: "+count);
             System.exit(0);
         } catch (TwitterException te) {
             te.printStackTrace();
             System.out.println("Tweetler aranırken bir sorun oluştu: " + te.getMessage());
             System.exit(-1);
         }
+
     }
 
 /*
