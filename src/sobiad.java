@@ -41,7 +41,7 @@ public class sobiad {
             System.exit(0);
         } catch (TwitterException te) {
             te.printStackTrace();
-            System.out.println("Failed to search tweets: " + te.getMessage());
+            System.out.println("Tweetler aranırken bir sorun oluştu: " + te.getMessage());
             System.exit(-1);
         }
     }
