@@ -4,8 +4,7 @@ import twitter4j.conf.ConfigurationBuilder;
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.DuplicateFormatFlagsException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Properties;
 
@@ -24,7 +23,7 @@ public class sobiad {
         twitter4j.Twitter twitter = tf.getInstance();
         int count = 0; // program çalışmayı bitirdiğinde kaç adet tweet çektiğini belirtmesi için ürettiğim sayaç.
         try {
-            Query query = new Query("galatasaray");//bu kısıma search edilecek kelime girilir.
+            Query query = new Query("sobiad");//bu kısıma search edilecek kelime girilir.
             QueryResult result;
             do {
                 result = twitter.search(query);
@@ -42,13 +41,23 @@ public class sobiad {
 
                         try {
 
-                            String sql = "INSERT INTO tweets (TweetID, KullaniciAdi, TweetMetni, TweetTarihi) "
-                                    + "VALUES  (" + "'" + tweet.getId() + "' " + " , " + "'" + tweet.getUser().getScreenName() +
-                                    "'" + "," + "'" + tweet.getText() + "'" + "," + "'" + tweet.getCreatedAt().toString() + "'" + ")"; // veritabanına gönderilen sorgu
+
+                            //String tweetMetni="";
+                            StringBuilder tweetMetni = new StringBuilder(tweet.getText());
+                            for(int i=0;i<tweetMetni.length();i++){
+                                if(tweetMetni.charAt(i)== '\'' ){
+                                    tweetMetni.setCharAt(i,' ');
+                            }}
+                            String tweetDate;
+                            tweetDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(tweet.getCreatedAt());
+                            String tweetUrl ="https://twitter.com/"+tweet.getUser().getScreenName()+"/status/"+tweet.getId();
+                            String sql = "INSERT INTO `tweets` (TweetID, KullaniciAdi, TweetMetni, BegeniSayisi, RetweetSayisi, TweetTarihi, TweetURL) "
+                                    + "VALUES  (" +  tweet.getId()  + " , " +"'"  + tweet.getUser().getScreenName()+"'"  +
+                                    "," +"'"+ tweetMetni+"'"  + "," + tweet.getFavoriteCount() +"," + tweet.getRetweetCount() +"," +"'"  +tweetDate+"'"+","+ "'"+tweetUrl+"'"+")"; // veritabanına gönderilen sorgu
+
                             mySt.executeUpdate(sql);
-                            // Get system properties
                             Properties prop = new Properties();
-                            //Bu alan smtp ayar alanı şuan gmail e ayarlı kullanılacak alana göre değiştirilebilir. +5 satır.
+                            //Bu alan smtp ayar alanı. Şuan gmail e ayarlı, kullanılacak alana göre değiştirilebilir. +5 satır.
                             prop.put("mail.smtp.auth", true);
                             prop.put("mail.smtp.starttls.enable", "true");
                             prop.put("mail.smtp.host", "smtp.gmail.com");
@@ -64,17 +73,17 @@ public class sobiad {
                             message.setFrom(new InternetAddress("from@gmail.com"));
                             message.setRecipients(
                                     Message.RecipientType.TO, InternetAddress.parse("tekyusuferen23@gmail.com")); // mailin gönderileceği hesap ise buraya.
-                            message.setSubject("Mail Subject"); // mail konusu
+                            message.setSubject("Mail Konusu"); // mail konusu
                             String id="";
                             id=Long.toString(tweet.getId()); // burada id yi stringe çevirmek zorunda kaldım çünkü sql sorgusunda hata alıyordum.
-                            String msg = tweet.getUser().getScreenName() + " --- " + tweet.getText() + " --- " + id ;
+                            String msg ="<b> Kullanıcı Adı: </b>@"+ tweet.getUser().getScreenName() + "<br>" + "<b>Tweet içeriği:</b> " + tweet.getText() + "<br>" + "<b>Beğeni sayısı:</b> " + tweet.getFavoriteCount() + "     " + "<b>Retweet Sayısı:</b> " + tweet.getRetweetCount() + "     " + "<b>Tarih:</b> " + tweetDate + "<br>" + "<b>Tweet Linki: </b>"+tweetUrl;
                             MimeBodyPart mimeBodyPart = new MimeBodyPart();
                             mimeBodyPart.setContent(msg,"text/html; charset=UTF-8");
                             Multipart multipart = new MimeMultipart();
                             multipart.addBodyPart(mimeBodyPart);
                             message.setContent(multipart);
                             Transport.send(message);
-                        } catch (SQLIntegrityConstraintViolationException e){ // veritabanında tweetid yi foreign key tanımladım. Her search ettiğimizde eski tweetleri defalarca veri tabanına kaydedip defalarca aynı tweeti mail almamak için. Catch blogunda eğer duplicate hatası alır isek o döngüyü geçiyoruz.
+                        } catch (SQLIntegrityConstraintViolationException e){ // veritabanında tweetid yi foreign key tanımladım. Her search ettiğimizde eski tweetleri defalarca veri tabanına kaydedip defalarca aynı tweeti mail almamak için, Catch blogunda eğer duplicate hatası alır isek o döngüyü geçiyoruz.
                             continue;
                         } catch (SQLException e) {
                             e.printStackTrace();
