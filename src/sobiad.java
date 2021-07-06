@@ -92,7 +92,6 @@ public class sobiad {
                         } catch (MessagingException e) {
                             e.printStackTrace();
                         }
-                        System.out.println("@" + tweet.getUser().getScreenName() + " --- " + tweet.getText() + " --- " + tweet.getId());
                         count++;
                     }
                 }
