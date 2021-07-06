@@ -92,7 +92,7 @@ public class sobiad {
                         } catch (MessagingException e) {
                             e.printStackTrace();
                         }
-                        count++;
+                        count++; // Buradaki sayacımız her çekilen tweette 1 artıyor.
                     }
                 }
             }
