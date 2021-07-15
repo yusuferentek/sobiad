@@ -84,7 +84,7 @@ public class sobiad {
                         }
                     }
                     while ((querys = result.nextQuery()) != null);
-                    System.out.println(queryStr+" için ç ekilen tweet sayısı: " + count);
+                    System.out.println(queryStr+" için çekilen tweet sayısı: " + count);
                     //System.exit(0);
 
                 }catch(TwitterException | SQLException te){
