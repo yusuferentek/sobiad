@@ -1,17 +1,13 @@
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
-
-import javax.mail.*;
-import javax.mail.internet.*;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Properties;
 
 public class sobiad {
 
     public static void main(String[] args) throws TwitterException {
-        String[] query = new String[5];
+        String[] query = new String[5];//ben deneme amaçlı localde çalıştığım için tablo adları içinde bu arrayi kullandım. Tablo adları için 5 indisli bir arrray oluşturulmasını öneriyorum. Array kullanımı 71. satırdadır.
         query[0]="sobiad";
         query[1]="asosindex";
         query[2]="bookcitestr";
@@ -39,9 +35,6 @@ public class sobiad {
 
             int count = 0; // program çalışmayı bitirdiğinde kaç adet tweet çektiğini belirtmesi için ürettiğim sayaç.
             try {
-
-
-
                     String queryStr=query[j];
                     Query querys = new Query(queryStr);//bu kısıma search edilecek kelime girilir.
                     QueryResult result;
@@ -55,15 +48,13 @@ public class sobiad {
                         String password = "asdf1234";
                         Connection myConn = DriverManager.getConnection(url, user, password);
                         Statement mySt = myConn.createStatement();
-                        ResultSet rs = mySt.executeQuery("select TweetID from tweets");
+                       // ResultSet rs = mySt.executeQuery("select TweetID from tweets");
                         for (Status tweet : tweets) {
                             if (tweet.isRetweet()) {//bu if else in amacı rt edilen tweetleri çekmemek. Aynı tweetten iki adet bulunması gereksiz bir işlem olacaktır.
                                 continue;
                             } else {
 
                                 try {
-
-
                                     //String tweetMetni="";
                                     StringBuilder tweetMetni = new StringBuilder(tweet.getText());
                                     for (int i = 0; i < tweetMetni.length(); i++) {
@@ -74,45 +65,18 @@ public class sobiad {
                                     String tweetDate;
                                     tweetDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(tweet.getCreatedAt());
                                     String tweetUrl = "https://twitter.com/" + tweet.getUser().getScreenName() + "/status/" + tweet.getId();
-                                    String sql = "INSERT INTO `tweets` (TweetID, KullaniciAdi, TweetMetni, BegeniSayisi, RetweetSayisi, TweetTarihi, TweetURL) "
+                                    String sql = "INSERT INTO "+ "`"+query[j] +"`" +" (TweetID, KullaniciAdi, TweetMetni, BegeniSayisi, RetweetSayisi, TweetTarihi, TweetURL) "
                                             + "VALUES  (" + tweet.getId() + " , " + "'" + tweet.getUser().getScreenName() + "'" +
                                             "," + "'" + tweetMetni + "'" + "," + tweet.getFavoriteCount() + "," + tweet.getRetweetCount() + "," + "'" + tweetDate + "'" + "," + "'" + tweetUrl + "'" + ")"; // veritabanına gönderilen sorgu
 
                                     mySt.executeUpdate(sql);
-                                    Properties prop = new Properties();
-                                    //Bu alan smtp ayar alanı. Şuan gmail e ayarlı, kullanılacak alana göre değiştirilebilir. +5 satır.
-                                    prop.put("mail.smtp.auth", true);
-                                    prop.put("mail.smtp.starttls.enable", "true");
-                                    prop.put("mail.smtp.host", "smtp.gmail.com");
-                                    prop.put("mail.smtp.port", "587");
-                                    prop.put("mail.smtp.ssl.trust", "smtp.gmail.com");
-                                    Session session = Session.getInstance(prop, new Authenticator() {
-                                        @Override
-                                        protected PasswordAuthentication getPasswordAuthentication() {
-                                            return new PasswordAuthentication("denemesender@gmail.com", "komo1125"); //mail gönderecek olan mail hesabı kullanıcı adı ve şifresi bu alana giriliyor.
-                                        }
-                                    });
-                                    Message message = new MimeMessage(session);
-                                    message.setFrom(new InternetAddress("from@gmail.com"));
-                                    message.setRecipients(
-                                            Message.RecipientType.TO, InternetAddress.parse(maillerArray[j])); // mailin gönderileceği hesap ise buraya.
-                                    message.setSubject("Mail Konusu"); // mail konusu
-                                    String id = "";
-                                    id = Long.toString(tweet.getId()); // burada id yi stringe çevirmek zorunda kaldım çünkü sql sorgusunda hata alıyordum.
                                     String msg = "<b> Kullanıcı Adı: </b>@" + tweet.getUser().getScreenName() + "<br>" + "<b>Tweet içeriği:</b> " + tweet.getText() + "<br>" + "<b>Beğeni sayısı:</b> " + tweet.getFavoriteCount() + "     " + "<b>Retweet Sayısı:</b> " + tweet.getRetweetCount() + "     " + "<b>Tarih:</b> " + tweetDate + "<br>" + "<b>Tweet Linki: </b>" + tweetUrl;
-                                    MimeBodyPart mimeBodyPart = new MimeBodyPart();
-                                    mimeBodyPart.setContent(msg, "text/html; charset=UTF-8");
-                                    Multipart multipart = new MimeMultipart();
-                                    multipart.addBodyPart(mimeBodyPart);
-                                    message.setContent(multipart);
-                                    Transport.send(message);
+                                    MailGun mp = new MailGun();
+                                    String a = mp.sendMail_withISPESCongress(maillerArray[j], "mail konusu", msg , "mail rapor adı");
+                                    System.out.println("a = " + a);
                                 } catch (SQLIntegrityConstraintViolationException e) { // veritabanında tweetid yi foreign key tanımladım. Her search ettiğimizde eski tweetleri defalarca veri tabanına kaydedip defalarca aynı tweeti mail almamak için, Catch blogunda eğer duplicate hatası alır isek o döngüyü geçiyoruz.
                                     continue;
                                 } catch (SQLException e) {
-                                    e.printStackTrace();
-                                } catch (AddressException e) {
-                                    e.printStackTrace();
-                                } catch (MessagingException e) {
                                     e.printStackTrace();
                                 }
                                 count++; // Buradaki sayacımız her çekilen tweette 1 artıyor.
