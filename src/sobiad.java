@@ -7,19 +7,29 @@ import java.util.List;
 public class sobiad {
 
     public static void main(String[] args) throws TwitterException {
-        String[] query = new String[5];//ben deneme amaçlı localde çalıştığım için tablo adları içinde bu arrayi kullandım. Tablo adları için 5 indisli bir arrray oluşturulmasını öneriyorum. Array kullanımı 71. satırdadır.
+        String[] query = new String[6];//ben deneme amaçlı localde çalıştığım için tablo adları içinde bu arrayi kullandım. Tablo adları için 5 indisli bir arrray oluşturulmasını öneriyorum. Array kullanımı 71. satırdadır.
         query[0]="sobiad";
         query[1]="asosindeks";
-        query[2]="bookcitestr";
-        query[3]="akademiktv";
-        query[4]="pirikeşifaraci";
+        query[2]="asosindex";
+        query[3]="bookcitestr";
+        query[4]="akademiktv";
+        query[5]="pirikeşifaraci";
 
-        String[] maillerArray= new String[5];
+        String[] sqlTable = new String[6];
+        sqlTable[0]="sobiad";
+        sqlTable[1]="asosindeks";
+        sqlTable[2]="asosindeks";
+        sqlTable[3]="bookcitestr";
+        sqlTable[4]="akademiktv";
+        sqlTable[5]="pirikeşifaraci";
+
+        String[] maillerArray= new String[6];
         maillerArray[0]="sobiad@sobiad.com";
-        maillerArray[1]="asos@asosindeks.com.tr";
-        maillerArray[2]="info@bookcites.com";
-        maillerArray[3]="akademiktv@akademiktv.com";
-        maillerArray[4]="info@kesifaraci.com";
+        maillerArray[1]="asos@asosindex.com.tr";
+        maillerArray[2]="asos@asosindex.com.tr";
+        maillerArray[3]="info@bookcites.com";
+        maillerArray[4]="akademiktv@akademiktv.com";
+        maillerArray[5]="info@kesifaraci.com";
 
         ConfigurationBuilder configurationBuider = new ConfigurationBuilder();
         configurationBuider.setDebugEnabled(true)
@@ -31,7 +41,7 @@ public class sobiad {
 
         TwitterFactory tf = new TwitterFactory(configurationBuider.build());
         twitter4j.Twitter twitter = tf.getInstance();
-        for (int j = 0; j < 5;j++) {
+        for (int j = 0; j < 6;j++) {
 
             int count = 0; // program çalışmayı bitirdiğinde kaç adet tweet çektiğini belirtmesi için ürettiğim sayaç.
             try {
@@ -65,14 +75,14 @@ public class sobiad {
                                     String tweetDate;
                                     tweetDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(tweet.getCreatedAt());
                                     String tweetUrl = "https://twitter.com/" + tweet.getUser().getScreenName() + "/status/" + tweet.getId();
-                                    String sql = "INSERT INTO "+ "`"+query[j] +"`" +" (TweetID, KullaniciAdi, TweetMetni, BegeniSayisi, RetweetSayisi, TweetTarihi, TweetURL) "
+                                    String sql = "INSERT INTO "+ "`"+sqlTable[j] +"`" +" (TweetID, KullaniciAdi, TweetMetni, BegeniSayisi, RetweetSayisi, TweetTarihi, TweetURL) "
                                             + "VALUES  (" + tweet.getId() + " , " + "'" + tweet.getUser().getScreenName() + "'" +
                                             "," + "'" + tweetMetni + "'" + "," + tweet.getFavoriteCount() + "," + tweet.getRetweetCount() + "," + "'" + tweetDate + "'" + "," + "'" + tweetUrl + "'" + ")"; // veritabanına gönderilen sorgu
 
                                     mySt.executeUpdate(sql);
                                     String msg = "<b> Kullanıcı Adı: </b>@" + tweet.getUser().getScreenName() + "<br>" + "<b>Tweet içeriği:</b> " + tweet.getText() + "<br>" + "<b>Beğeni sayısı:</b> " + tweet.getFavoriteCount() + "     " + "<b>Retweet Sayısı:</b> " + tweet.getRetweetCount() + "     " + "<b>Tarih:</b> " + tweetDate + "<br>" + "<b>Tweet Linki: </b>" + tweetUrl;
                                     MailGun mp = new MailGun();
-                                    String a = mp.sendMail_asosSocial(maillerArray[j], "mail konusu", msg , "mail rapor adı");
+                                    String a = mp.sendMail_asosSocial(maillerArray[j], query[j]+" Tweetleri", msg , "twitter_data");
                                     System.out.println("a = " + a);
                                 } catch (SQLIntegrityConstraintViolationException e) { // veritabanında tweetid yi foreign key tanımladım. Her search ettiğimizde eski tweetleri defalarca veri tabanına kaydedip defalarca aynı tweeti mail almamak için, Catch blogunda eğer duplicate hatası alır isek o döngüyü geçiyoruz.
                                     continue;
