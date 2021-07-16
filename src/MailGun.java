@@ -7,8 +7,8 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import javax.ws.rs.core.MediaType;
 
     public class MailGun {
-        public String sendMail_withISPESCongress(String to, String subject, String text, String campaign) {
-            String replyto = "info@ispescongress.com";
+        public String sendMail_asosSocial(String to, String subject, String text, String campaign) {
+            //String replyto = "info@ispescongress.com";
 
             Client client = Client.create();
             client.addFilter(new HTTPBasicAuthFilter("api",
@@ -25,9 +25,9 @@ import javax.ws.rs.core.MediaType;
             formData.add("o:campaign", campaign);
             formData.add("o:tag", campaign);
             formData.add("o:dkim", "yes");
-            if (replyto != null) {
-                formData.add("h:Reply-To", replyto);
-            }
+            //if (replyto != null) {
+                //formData.add("h:Reply-To", replyto);
+            //}
             return webResource.type(MediaType.APPLICATION_FORM_URLENCODED).post(ClientResponse.class, formData).toString();
 
 

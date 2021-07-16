@@ -9,14 +9,14 @@ public class sobiad {
     public static void main(String[] args) throws TwitterException {
         String[] query = new String[5];//ben deneme amaçlı localde çalıştığım için tablo adları içinde bu arrayi kullandım. Tablo adları için 5 indisli bir arrray oluşturulmasını öneriyorum. Array kullanımı 71. satırdadır.
         query[0]="sobiad";
-        query[1]="asosindex";
+        query[1]="asosindeks";
         query[2]="bookcitestr";
         query[3]="akademiktv";
         query[4]="pirikeşifaraci";
 
         String[] maillerArray= new String[5];
         maillerArray[0]="sobiad@sobiad.com";
-        maillerArray[1]="asos@asosindex.com.tr";
+        maillerArray[1]="asos@asosindeks.com.tr";
         maillerArray[2]="info@bookcites.com";
         maillerArray[3]="akademiktv@akademiktv.com";
         maillerArray[4]="info@kesifaraci.com";
@@ -72,7 +72,7 @@ public class sobiad {
                                     mySt.executeUpdate(sql);
                                     String msg = "<b> Kullanıcı Adı: </b>@" + tweet.getUser().getScreenName() + "<br>" + "<b>Tweet içeriği:</b> " + tweet.getText() + "<br>" + "<b>Beğeni sayısı:</b> " + tweet.getFavoriteCount() + "     " + "<b>Retweet Sayısı:</b> " + tweet.getRetweetCount() + "     " + "<b>Tarih:</b> " + tweetDate + "<br>" + "<b>Tweet Linki: </b>" + tweetUrl;
                                     MailGun mp = new MailGun();
-                                    String a = mp.sendMail_withISPESCongress(maillerArray[j], "mail konusu", msg , "mail rapor adı");
+                                    String a = mp.sendMail_asosSocial(maillerArray[j], "mail konusu", msg , "mail rapor adı");
                                     System.out.println("a = " + a);
                                 } catch (SQLIntegrityConstraintViolationException e) { // veritabanında tweetid yi foreign key tanımladım. Her search ettiğimizde eski tweetleri defalarca veri tabanına kaydedip defalarca aynı tweeti mail almamak için, Catch blogunda eğer duplicate hatası alır isek o döngüyü geçiyoruz.
                                     continue;
