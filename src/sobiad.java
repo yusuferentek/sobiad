@@ -1,13 +1,17 @@
+import com.github.sinboun.EmojiParser;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+
 public class sobiad {
 
-    public static void main(String[] args) throws TwitterException {
+    public static void main(String[] args)  {
+
         String[] query = new String[6];//ben deneme amaçlı localde çalıştığım için tablo adları içinde bu arrayi kullandım. Tablo adları için 5 indisli bir arrray oluşturulmasını öneriyorum. Array kullanımı 71. satırdadır.
+
         query[0]="sobiad";
         query[1]="asosindeks";
         query[2]="asosindex";
@@ -21,7 +25,7 @@ public class sobiad {
         sqlTable[2]="asosindeks";
         sqlTable[3]="bookcitestr";
         sqlTable[4]="akademiktv";
-        sqlTable[5]="pirikeşifaraci";
+        sqlTable[5]="pirikesifaraci";
 
         String[] maillerArray= new String[6];
         maillerArray[0]="sobiad@sobiad.com";
@@ -53,9 +57,9 @@ public class sobiad {
 
                         result = twitter.search(querys);
                         List<Status> tweets = result.getTweets();
-                        String url = "jdbc:mysql://localhost:3306/sobiad?useUnicode=true&useLegacyDatetimeCode=false&serverTimezone=Turkey";
-                        String user = "root";
-                        String password = "asdf1234";
+                        String url = "jdbc:mysql://app.sobiad.com:3306/sosyalmedyakontrol?useUnicode=true&characterEncoding=utf-8&useLegacyDatetimeCode=false&serverTimezone=Turkey";
+                        String user = "sosyalmedyauser";
+                        String password = "sosyal2020.";
                         Connection myConn = DriverManager.getConnection(url, user, password);
                         Statement mySt = myConn.createStatement();
                        // ResultSet rs = mySt.executeQuery("select TweetID from tweets");
@@ -65,6 +69,7 @@ public class sobiad {
                             } else {
 
                                 try {
+
                                     //String tweetMetni="";
                                     StringBuilder tweetMetni = new StringBuilder(tweet.getText());
                                     for (int i = 0; i < tweetMetni.length(); i++) {
@@ -72,15 +77,20 @@ public class sobiad {
                                             tweetMetni.setCharAt(i, ' ');
                                         }
                                     }
+                                    String removeEmoji= EmojiParser.removeAllEmojis(String.valueOf(tweetMetni));
+                                    //System.out.println(removeEmoji);
                                     String tweetDate;
                                     tweetDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(tweet.getCreatedAt());
                                     String tweetUrl = "https://twitter.com/" + tweet.getUser().getScreenName() + "/status/" + tweet.getId();
                                     String sql = "INSERT INTO "+ "`"+sqlTable[j] +"`" +" (TweetID, KullaniciAdi, TweetMetni, BegeniSayisi, RetweetSayisi, TweetTarihi, TweetURL) "
                                             + "VALUES  (" + tweet.getId() + " , " + "'" + tweet.getUser().getScreenName() + "'" +
-                                            "," + "'" + tweetMetni + "'" + "," + tweet.getFavoriteCount() + "," + tweet.getRetweetCount() + "," + "'" + tweetDate + "'" + "," + "'" + tweetUrl + "'" + ")"; // veritabanına gönderilen sorgu
+                                            "," + "'" + removeEmoji + "'" + "," + tweet.getFavoriteCount() + "," + tweet.getRetweetCount() + "," + "'" + tweetDate + "'" + "," + "'" + tweetUrl +
+                                            "'" + ")"; // veritabanına gönderilen sorgu
 
                                     mySt.executeUpdate(sql);
-                                    String msg = "<b> Kullanıcı Adı: </b>@" + tweet.getUser().getScreenName() + "<br>" + "<b>Tweet içeriği:</b> " + tweet.getText() + "<br>" + "<b>Beğeni sayısı:</b> " + tweet.getFavoriteCount() + "     " + "<b>Retweet Sayısı:</b> " + tweet.getRetweetCount() + "     " + "<b>Tarih:</b> " + tweetDate + "<br>" + "<b>Tweet Linki: </b>" + tweetUrl;
+                                    String msg = "<b> Kullanıcı Adı: </b>@" + tweet.getUser().getScreenName() + "<br>" + "<b>Tweet içeriği:</b> " + tweet.getText() + "<br>" +
+                                            "<b>Beğeni sayısı:</b> " + tweet.getFavoriteCount() + "     " + "<b>Retweet Sayısı:</b> " + tweet.getRetweetCount() + "     " + "<b>Tarih:</b> "
+                                            + tweetDate + "<br>" + "<b>Tweet Linki: </b>" + tweetUrl;
                                     MailGun mp = new MailGun();
                                     String a = mp.sendMail_asosSocial(maillerArray[j], query[j]+" Tweetleri", msg , "twitter_data");
                                     System.out.println("a = " + a);

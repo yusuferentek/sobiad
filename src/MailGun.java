@@ -15,7 +15,7 @@ import javax.ws.rs.core.MediaType;
                     "key-0b0e55e4aaacddb970c4067de747892b"));
             WebResource webResource = client.resource("https://api.mailgun.net/v3/akademikiletisim.com/messages");
             MultivaluedMapImpl formData = new MultivaluedMapImpl();
-            formData.add("from", "Asos Eğitim <sosyalmedya@asosegitim.com>");
+            formData.add("from", "Asos Eğitim <kongre@akademikiletisim.com>");
             formData.add("to", to);
             formData.add("subject", subject);
             formData.add("html", text);
@@ -29,12 +29,7 @@ import javax.ws.rs.core.MediaType;
                 //formData.add("h:Reply-To", replyto);
             //}
             return webResource.type(MediaType.APPLICATION_FORM_URLENCODED).post(ClientResponse.class, formData).toString();
-
-
         }
-
-
-
     }
 
 
